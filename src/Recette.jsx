@@ -1,11 +1,9 @@
 import Button from "./Button";
 
 export default function Recette({ id, titre, temps, ingredients, methode, modifierRecette, supprimerRecette }) {
-    let ingredientsTab = ingredients.split(",");
-    console.log(ingredientsTab);
-    
+    let ingredientsTab = ingredients.split(",");    
     return (
-        <div>
+        <div className="recette">
             <h3>{id} , { titre }</h3>
             <p>Temps de cuisson : { temps } minutes</p>
             <h4>Ingrédients :</h4>
