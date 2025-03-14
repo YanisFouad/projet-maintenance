@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import Dexie from "dexie";
-const db = new Dexie('Tablerecette');
-db.version(1).stores({recettes:"++int, titre, ingredients, temps, methode"})
+import Recette from "./Recette";
+const db = new Dexie('TableRecette');
+db.version(1).stores({recettes:"++id, titre, ingredients, temps, methode"})
 
 function App() {
-  const [recettes, setrecettes] = useState([]);
+  const [recettes, setRecettes] = useState([]);
   const [form, setForm] = useState({ titre: "", ingredients: "", temps: "", methode: "" });
 
   // Charger les recettes
@@ -14,7 +15,7 @@ function App() {
 
 
   const chargerRecettes = () => {
-    db.recettes.toArray().then(liste=>setrecettes(liste))
+    db.recettes.toArray().then(liste=>setRecettes(liste))
       .catch((error)=>{console.log("erreur de chargement",error)});
     console.log(recettes);
     
@@ -38,6 +39,8 @@ function App() {
 
   // Supprimer un recette
   const supprimerRecette = (id) => {
+    console.log(id);
+    
     db.recettes.delete(id).then(()=> console.log("Recette supprimée"))
   };
 
@@ -53,9 +56,25 @@ function App() {
     }
     chargerRecettes();
   };
+
+  const ajouterDonneesInitiales = async () => {
+    const count = await db.recettes.count();
+    if (count === 0) {
+      await db.recettes.bulkAdd([
+        { titre: "Pâtes Carbonara", ingredients: "Pâtes, œufs, pancetta, parmesan", temps: "20 min", methode: "Faire cuire les pâtes, préparer la sauce, mélanger." },
+        { titre: "Salade César", ingredients: "Laitue, poulet, croûtons, sauce César", temps: "15 min", methode: "Mélanger les ingrédients et servir." },
+        { titre: "Gâteau au Chocolat", ingredients: "Chocolat, farine, œufs, sucre", temps: "45 min", methode: "Mélanger et cuire au four." }
+      ]);
+      console.log("Données initiales ajoutées");
+    }
+  };
+  ajouterDonneesInitiales();
   return (
     <div>
-      
+      <h1>Liste des Recettes</h1>
+        {recettes.map((recette) => (
+          <Recette key={recette.id} id={recette.id} titre={recette.titre} ingredients={recette.ingredients} temps={recette.temps} methode={recette.methode} modifierRecette ={mettreAJourRecette} supprimerRecette={supprimerRecette}></Recette>
+        ))}
     </div>
   );
 }
